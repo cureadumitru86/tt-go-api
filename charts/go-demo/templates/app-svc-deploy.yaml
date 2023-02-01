@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.app.name }}
+  labels:
+    app: {{ .Values.app.name }}
+spec:
+  replicas: {{ .Values.app.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.app.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.app.name }}
+    spec:
+      containers:
+      - name: {{ .Values.app.name }}
+        image: {{ .Values.app.image }}:{{ .Values.app.tag }}
+        ports:
+        - containerPort: {{ .Values.app.port }}
+        envFrom:
+        - configMapRef:
+            name: app-config
+        env:
+        - name: GODEMO_DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: app-secrets
+              key: db_url
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.app.name }}
+spec:
+  selector:
+    app: {{ .Values.app.name }}
+  ports:
+    - protocol: TCP
+      port: {{ .Values.app.port }}
+      targetPort: {{ .Values.app.port }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  labels:
+    app: {{ .Values.app.name }}
+    type: {{ .Values.app.image }}
+data:
+  APP_ENV: {{ .Values.app.app_env }}
+  HOST_NAME: {{.Values.app.hostname }}

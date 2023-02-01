@@ -1,0 +1,18 @@
+app:
+  name: go-demo
+  image: go-demo
+  tag: latest
+  replicas: 1
+  port: 80
+  app_env: dev
+  hostname: "http://localhost:8080" 
+
+db:
+  name: db
+  image: mysql
+  tag: latest
+  port: 3306
+
+secrets:
+  db_root_psw: supersecretpassword
+  
